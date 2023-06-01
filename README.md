@@ -19,14 +19,14 @@ The original implementation of Bitcoin by Satoshi Nakamoto brought the strange i
 
 Scalability and, partially, privacy problems were later addressed by the introduction of layer 2 systems, like Lightning network and other proposed solutions. Among those, the least fruitful was the idea of sidechain, which inherited most (if not all) of the original blockchain technology limitations while solving only a problem of low programmability, created a sandbox for experiments and, partially, some aspects of privacy.  Lightning network - a more successful layer 2 solution which is already deployed and operational - has its own scalability issues due to the need for liquidity over-collateralization, limitations of the gossip traffic throughput (both leading to the network centralization) and decreased security/trustlessness under high base layer conditions [..]. Other proposed alternatives, like Ark, require several base layer changes (one or two softforks), which presents challenges for the deployment. Finally, none of the existing or proposed second-layer solutions solves the original Bitcoin base layer privacy issues, - and other privacy-focused layer-1 solutions (like CoinJoin) still do not protect from legal authorities and introduce additional BTC fungibility problems.
 
-Thus, it can be concluded that it is the ledger-based blockchain approach for building layer 1 which has to be fully rethought in order to solve the above problems. The first ideas in this space came with Peter Todd's works in 2016 [..] where he pointed out that the owners of some state (for instance BTC or any other stateful contract) need to verify just a part of the transactional history - the part which is directly related to their ownership - and omit the rest. He named his approach **client-side validation**. Giacomo Zucco designed a protocol able to create assets with this approach, named **RGB** [..]. In my previous work at LNP/BP Standards Association I was able to develop RGB and convert it into the first generic client-side-validated smart-contract system with rich state and bounded Turing-complete computing; providing sufficient functionality to run anything which can be done with blockchain-based smart contracts - but without a public ledger/blockchain storing any user data; directly utilizing anti-double-spending properties of PoW consensus protocol in Bitcoin. This system was publically developed during the last four years and got released in May 2023 [..].
+Thus, it can be concluded that it is the ledger-based blockchain approach for building layer 1 which has to be fully rethought in order to solve the above problems. The first ideas in this space came with Peter Todd's [back in 2016](https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2016-June/012773.html) and [2017](https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2017-December/015350.html) when he pointed out that the owners of some state (for instance BTC or any other stateful contract) need to verify just a part of the transactional history - the part which is directly related to their ownership - and omit the rest. He named his approach **client-side validation**. Giacomo Zucco [designed protocol](https://en.cryptonomist.ch/2018/07/10/rgb-protocol/) able to create assets with this approach, named **RGB**. In my previous work at LNP/BP Standards Association I was able to develop RGB further and convert it into the first generic client-side-validated smart-contract system with rich state and bounded Turing-complete computing, providing sufficient functionality to run anything which can be done with blockchain-based smart contracts - but without the public ledger/blockchain storing any user data, directly utilizing anti-double-spending properties of Bitcoin PoW consensus protocol. This system was publically developed during the course of four years and [got released](https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2023-April/021554.html) in April 2023.
 
 
 ## Overview
 
 In the current proposal we demonstrate that Bitcoin, if provided with a stateful client-side-validated layer (like RGB), can be upgraded to a system without the limiting properties of public ledger (blockchain), and, while preserving PoW consensus protocol, it can be re-based onto a new scalable non-blockchain layer 1 (codenamed **Prime**). This layer will be able to host a theoretically indefinite number of transactions (at least billions per minute) since the storage of state, computing and validation will be moved to the client-side-validated layer above. Such design doesn't require Lightning network or other scalability and payment layers on top and scales in the worst-case scenario as $O(\log N)$ (when no zk-proofs are involved) or $O(1)$ (with zk proofs involved), where $N$ is a global number of transactions.
 
-The protocol has three [deployment options](#Deployment) (permissionless, miner-activated and softfork), with the first two not requiring any soft- (or hard-) fork. Options are independent, but can also be deployed in consequent ways.
+The protocol has three [deployment options](#Deployment) (permissionless, miner-activated and softfork), with the first two not requiring any soft- (or hard-) fork. Options are independent, but can also be deployed in a consequent way.
 
 The proposal provides several benefits to Bitcoin as digital cash:
 1. Higher scalability, achieved at the base layer, without the need for Lightning Network or other dedicated scalability solutions;
@@ -87,21 +87,21 @@ Prime headers are the only information which is required to be available publica
 
 ### Proofs
 
-Proof Merkle trees (**PMT**) are an intermediary and ephemeral structure linking client-side-validated data to the headers. Ptrees are produced by miners and made available to the public via the same or some other means as Prime headers; however, unlike the headers, they are not required to persist. Each network user tracks all new PMTs, extract part of the information which is related to the state it owns, saves it into its own stash of client-side-validated data and discards the rest of the PMT. 
+Proof Merkle trees (**PMT**) are an intermediary and ephemeral structure linking client-side-validated data to the headers. PMTs are produced by miners and made available to the public via the same or some other means as the headers; however, unlike the headers, they are not required to persist. Each network user tracks all new PMTs, extracts part of the information which is related to the state it owns, saves it into its own stash of client-side-validated data and discards the rest of the PMT. 
 
 Due to the ephemeral nature, absence of validation and no need in knowing PMT content for mining the next header, PMT size doesn't affect system scalability. Thus the PMT may be of (multiple) gigabyte size, committing to billions and billions of transactions.
 
-The leaves of the trees contain witnesses closing single-use-seals: a mechanism described in detail in the next section. Ptrees are constructed according to the multi-protocol deterministic commitment scheme described in [LNPBP-4 standard](https://github.com/LNP-BP/LNPBPs/blob/master/lnpbp-0004.md) and used in RGB today to host commitments in the Bitcoin transactions (both on-chain and inside offchain protocols like lightning). This means that each single-use-seal has a unique predefined placement in the PMT, such that a single Merkle path and leaf witness is sufficient to prove the presence - or absence - of a specific single-use-seal instance in the given headers. Users of the protocol from each newly produced PMT extract these proofs for the set of their own single-use-seals which have not been closed yet (analogue of UTXO set): in case they haven't performed an operation these are the proofs of a non-operation (since the witness demonstrates a different single-use-seal being closed at that path). These proofs constitute a time-dependent growing part of the client-side-validated history.
+The leaves of the trees contain witnesses closing single-use-seals: a mechanism described in detail in the [next section](#single-use-seal-protocol). PMTs are constructed according to the multi-protocol deterministic commitment scheme [LNPBP-4 standard](https://github.com/LNP-BP/LNPBPs/blob/master/lnpbp-0004.md) and used in RGB today to host commitments in the Bitcoin transactions (both on-chain and inside offchain protocols like lightning). This means that each single-use-seal has a unique predefined placement in the PMT, such that a single Merkle path and a leaf witness is sufficient to prove the closing - or absence of closing - of a specific single-use-seal in the given header. Users keep track of a set of their single-use-seals which have not been closed yet (analogue of UTXO set) and extract relative proofs from each newly produced PMT. If their seals were not closed these are the proofs of a non-operation (since the witness demonstrates a different single-use-seal being closed at that path).
 
 #### Scalability analysis
 
-The speed of time-dependent size growth for client-side-validated data with proofs is:
+The proofs constitute a time-dependent growing part of the client-side-validated history. Memory requirements for a node will grow in a time-dependent manner as
 
-$$\sum_t m_t \log N_t,$$
+$$\sum_t m_t \log N_t + m_t,$$
 
 where $t$ is time, $m_t$ is the number of client-defined non-closed single-use-seals at the moment $t$; $N$ is the global number of transactions from $t-1$ to $t$.
 
-This is logarithmically-slower than with any blockchain, growing with the speed of 
+This is logarithmically better than the scalability of any blockchain node, where memory requirements are growing as
 
 $$\sum_t N_t + M_t,$$
 
@@ -123,7 +123,7 @@ where $c$ is a fixed size of the zk-proof.
 
 Single-use-seal protocol prevents double-spending attacks on the system. 
 
-Single-use-seals (or **seals**) are a special form of cryptographic commitment proposed by Peter Todd [..]. The primitive can be compared to other forms of cryptographic commitments which include hash functions and timestamping:
+Single-use-seals (or **seals**) are a special form of cryptographic commitment [proposed by Peter Todd](https://petertodd.org/2016/commitments-and-single-use-seals). The primitive can be compared to other forms of cryptographic commitments which include hash functions and timestamping:
 - cryptographic hash functions allow proving knowledge of certain facts without revealing the fact beforehand;
 - timestamping allows to prove the knowledge of the fact before a certain period of time;
 - single-use-seals provide the option of creating future timestamped commitments, which would be provably singular (i.e. one and only one commitment can be created in the future).
@@ -236,4 +236,4 @@ As a side benefit, this approach allows the gradual introduction of new features
 
 ## Acknowledgments
 
-TBD
+Author is grateful to Giacomo Zucco, who was the person insiping with the idea of removing Bitcoin dependency on contrained blockchain and seeing client-side-validation as a way forward. Multiple discussions with him and Peter Todd over the years had helped in designing many parts of the system. Among others author would like to mention Alex Kravets, Federico Tenga, Olga Ukolova who were the interlocutors who spent many hours in discussing matters related to client-side-validation, blockchain flaws and blockchain-less designs.
