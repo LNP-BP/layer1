@@ -30,7 +30,7 @@ The protocol has three [deployment options](#Deployment) (permissionless, miner-
 
 The proposal provides several benefits to Bitcoin as digital cash:
 1. Higher scalability, achieved at the base layer, without the need for Lightning Network or other dedicated scalability solutions;
-2. Much improved privacy with now publically exposed transaction graph, ledger, addresses or public keys;
+2. Much improved privacy with no publically exposed transaction graph, ledger, addresses or public keys;
 3. Rich programmability, provided by RGB or other client-side-validation systems;
 4. Better upgradability: new protocol features may be adopted gradually and without reaching a wide consensus (see [Upgrades section](#Upgrades)).
 
