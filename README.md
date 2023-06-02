@@ -194,7 +194,7 @@ At the current moment of time we do not see a network meeting the aforementioned
 We plan to work on the reNostr project, utilizing our previous work from Storm protocol and using BIP-324-style end-to-end encryption. Other projects may build alternative solutions, and the best option should be selected by the market.
 
 
-## Delpolyment
+## Deployment
 
 We see three steps -- or options -- in how the proposed solution can be deployed in Bitcoin. Each of the steps is optional; the system can operate without any one or two of them. Also, each option has its own tradeoffs, however, if deployed as consequent steps, these tradeoffs get gradually solved.
 
