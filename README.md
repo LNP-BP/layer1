@@ -112,7 +112,7 @@ M_t \approx P_t m_t,$$
 
 where $P_t$ is the global number of the system users at moment $t$.
 
-The $O(\log N)$ growth speed can be further reduced if a zk-based proof system is used instead of a full Merkle path. This will result in fixed-size proofs, changing the growth speed to be linear in time $O(t)$ and independent only on the global number of transactions, $O(1)$:
+The $O(\log N)$ growth speed can be further reduced if a zk-based proof system is used instead of a full Merkle path. This will result in fixed-size proofs, changing the growth speed to be linear in time $O(t)$ and independent of the global number of transactions, $O(1)$:
 
 $$\sum_t c \cdot m_t,$$
 
