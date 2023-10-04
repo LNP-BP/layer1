@@ -236,4 +236,4 @@ As a side benefit, this approach allows the gradual introduction of new features
 
 ## Acknowledgments
 
-Author is grateful to Giacomo Zucco, who was the person insiping with the idea of removing Bitcoin dependency on contrained blockchain and seeing client-side-validation as a way forward. Multiple discussions with him and Peter Todd over the years had helped in designing many parts of the system. Among others author would like to mention Alex Kravets, Federico Tenga, Olga Ukolova who were the interlocutors who spent many hours in discussing matters related to client-side-validation, blockchain flaws and blockchain-less designs.
+Author is grateful to Giacomo Zucco, who was the person insiping with the idea of removing Bitcoin dependency on constrained blockchain and seeing client-side-validation as a way forward. Multiple discussions with him and Peter Todd over the years had helped in designing many parts of the system. Among others author would like to mention Alex Kravets, Federico Tenga, Olga Ukolova who were the interlocutors who spent many hours in discussing matters related to client-side-validation, blockchain flaws and blockchain-less designs.
